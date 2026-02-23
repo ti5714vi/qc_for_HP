@@ -1,0 +1,15 @@
+Drell-Yan e-e+ -> mu-mu+ scattering
+
+
+sqrt{s} = [85, 90, 95, 100] GeV
+theta = [0.0, 0.78539816, 1.57079633, 2.35619449]
+
+weak mixing angle = 0.2304
+
+M_Z = 91      # GeV
+Gamma_Z = 2.5 # GeV
+
+complex Z mass
+M_Z - 1j * Gamma_Z/2
+
+
