@@ -70,6 +70,7 @@ def true(s, theta, n_particles = 2):
     else:
         print("Not valid number of particles")
 
+
 def true_int(s, theta, n_particles = 2):
     if n_particles == 2:
         return get_interference(get_photon_diagram(s, theta), get_Z_diagram(s, theta))
