@@ -14,7 +14,7 @@ import numpy as np
 theta = np.pi/3
 
 # Weak mixing angle
-theta_W = np.arcsin(0.47143025548)
+theta_W = np.arcsin(np.sqrt(0.2304))
 
 
 # Up quark inputs
@@ -28,17 +28,15 @@ Q_mu = -1     # eV
 I_mu = -1/2   # eV
 
 # Electron charge
-alpha_inv = 1/1.325070e+02
-e = np.sqrt(4*np.pi*alpha_inv) # eV
-Q_e = -1
+e = 1 # eV
 I_e = -1/2 
 
 # Z boson inputs
-M_Z = 91.188      # GeV
+M_Z = 91.188   # GeV
 Gamma_Z = 2.441404 # GeV
 
 # Complex mass
-M_Z = M_Z  #- 1j * Gamma_Z/2
+M_Z = M_Z - 1j * Gamma_Z/2
 
 
 # Z prime boson inputs
@@ -48,11 +46,9 @@ Gamma_Z_prime = 2.2 # GeV
 M_Z_prime = M_Z_prime - 1j * Gamma_Z_prime/2
 
 # Couplings as functions of Q, I
-C_V_Z = lambda Q, I: 1j*e/(2*np.cos(theta_W)*np.sin(theta_W)) *(I - 2*Q*np.sin(theta_W)**2)  # Vector coupling
-C_A_Z = lambda Q, I: 1j*e/(2*np.cos(theta_W)*np.sin(theta_W)) * I                           # Axial coupling
+C_V_Z = lambda Q, I: 1j*e/(2*np.cos(theta_W)) * (I/np.sin(theta_W) - 2*np.sin(theta_W)*Q)  # Vector coupling
+C_A_Z = lambda Q, I: -1j*e*I/(2*np.sin(theta_W)*np.cos(theta_W))                           # Axial coupling
 
-C_L_Z = lambda Q, I: 1j*e/(2*np.cos(theta_W)*np.sin(theta_W))*(2*I - 2*Q*np.sin(theta_W)**2)
-C_R_Z = lambda Q, I: 1j*e/(2*np.cos(theta_W)*np.sin(theta_W))*(- 2*Q*np.sin(theta_W)**2)
 
 # Photon inputs
 M_A = 0 # GeV
@@ -66,9 +62,9 @@ xi = 1
 
 
 # Collect all couplings
-# Cs_q = np.array([[C_V_A(Q_q), C_A_A], [C_V_Z(Q_q, I_q), C_A_Z(Q_q, I_q)]])         # First vertex with quarks
+Cs_q = np.array([[C_V_A(Q_q), C_A_A], [C_V_Z(Q_q, I_q), C_A_Z(Q_q, I_q)]])         # First vertex with quarks
 
-Cs_q = np.array([[C_V_A(e), C_A_A], [C_V_Z(e, I_e), C_A_Z(e, I_e)]])         # First vertex with quarks
+# Cs_mu = np.array([[C_V_A(e), C_A_A], [C_V_Z(e, I_e), C_A_Z(e, I_e)]])         # Second vertex with electrons
 Cs_mu = np.array([[C_V_A(Q_mu), C_A_A], [C_V_Z(Q_mu, I_mu), C_A_Z(Q_mu, I_mu)]])   # Second vertex with muons
 
 q_max = np.max(abs(Cs_q))
