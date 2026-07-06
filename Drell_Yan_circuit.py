@@ -24,7 +24,7 @@ def get_m_roof(s, n_particles = 2):
     return m_roof
 
 
-def generate_kinematic_inputs(s = 1000,  theta = np.pi/3, n_particles = 2, hel=['+','-','+','-']):
+def generate_kinematic_inputs(s = 1000,  theta = np.pi/3, n_particles = 2):
   # Put in energy
   E = np.sqrt(s)/2
 
@@ -41,10 +41,10 @@ def generate_kinematic_inputs(s = 1000,  theta = np.pi/3, n_particles = 2, hel=[
 
 
   # Get associated spinors
-  spinor1 = get_spinor(E, s = hel[0], type = 'F', direction = 'in') # quark
-  spinor2 = get_spinor(E, s = hel[1], type = 'A', direction = 'in') # anti-quark
-  spinor3 = get_spinor(E, s = hel[2], type = 'F', direction = 'out', theta = theta) # muon-
-  spinor4 = get_spinor(E, s = hel[3], type = 'A', direction = 'out', theta = theta) # muon+
+  spinor1 = get_spinor(E, s = '+', type = 'F', direction = 'in') # quark
+  spinor2 = get_spinor(E, s = '-', type = 'A', direction = 'in') # anti-quark
+  spinor3 = get_spinor(E, s = '+', type = 'F', direction = 'out', theta = theta) # muon-
+  spinor4 = get_spinor(E, s = '-', type = 'A', direction = 'out', theta = theta) # muon+
 
 
   # Colllect them
@@ -292,6 +292,7 @@ def generate_circuit(inputs, n_particles = 2,
             
       circ.append(X.control(blank_qubits, ctrl_state = '0'*blank_qubits), 
                   register([v1, v2, i1, i2, U, a1, a2, a3, hit]))
+      
       
   # Compensation factor
   compensate = 256 * np.linalg.norm(spinor1) * np.linalg.norm(spinor2) * C_roof \

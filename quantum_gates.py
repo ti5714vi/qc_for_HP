@@ -2,6 +2,7 @@
 """
 Created on Sat Dec 13 10:50:56 2025
 
+
     File with quantum gates    
 
 @author: Erik Bashore
@@ -98,12 +99,49 @@ eta_gate = eta_gate()
 
 #%% 
 
+
+# OLD VERSION Dirac basis
+
+# # Dirac matrices
+
+# gamma0_matrix = np.array([[1,0,0,0],
+#                           [0,1,0,0],
+#                           [0,0,-1,0],
+#                           [0,0,0,-1]])
+
+# gamma1_matrix = np.array([[0,0,0,1],
+#                           [0,0,1,0],
+#                           [0,-1,0,0],
+#                           [-1,0,0,0]])
+
+# gamma2_matrix = np.array([[0,0,0,-1j],
+#                           [0,0,1j,0],
+#                           [0,1j,0,0],
+#                           [-1j,0,0,0]])
+
+# gamma3_matrix = np.array([[0,0,1,0],
+#                           [0,0,0,-1],
+#                           [-1,0,0,0],
+#                           [0,1,0,0]])
+
+# gamma5_matrix = np.array([[0,0,1,0],
+#                           [0,0,0,1],
+#                           [1,0,0,0],
+#                           [0,1,0,0]])
+
+# beta_matrix = gamma5_matrix
+
+
+
+
+# NEW VERSION  Weyl basis
+
 # Dirac matrices
 
-gamma0_matrix = np.array([[1,0,0,0],
-                          [0,1,0,0],
-                          [0,0,-1,0],
-                          [0,0,0,-1]])
+gamma0_matrix = np.array([[0,0,1,0],
+                          [0,0,0,1],
+                          [1,0,0,0],
+                          [0,1,0,0]])
 
 gamma1_matrix = np.array([[0,0,0,1],
                           [0,0,1,0],
@@ -120,12 +158,14 @@ gamma3_matrix = np.array([[0,0,1,0],
                           [-1,0,0,0],
                           [0,1,0,0]])
 
-gamma5_matrix = np.array([[0,0,1,0],
-                          [0,0,0,1],
-                          [1,0,0,0],
-                          [0,1,0,0]])
+gamma5_matrix = np.array([[-1,0,0,0],
+                          [0,-1,0,0],
+                          [0,0,1,0],
+                          [0,0,0,1]])
 
-beta_matrix = gamma5_matrix
+beta_matrix = gamma0_matrix
+
+
 
 gamma_matrices = [gamma0_matrix, gamma1_matrix, gamma2_matrix, gamma3_matrix]
 
@@ -136,7 +176,7 @@ gamma_matrices = [gamma0_matrix, gamma1_matrix, gamma2_matrix, gamma3_matrix]
 
 # gamma0
 circ = QuantumCircuit(2)
-circ.z(1)
+circ.x(1)
 
 gamma0 = circ.to_gate(label = r'$\gamma^0$')
 
@@ -167,8 +207,23 @@ gammas = [gamma0, gamma1, gamma2, gamma3]
 # gamma5
 circ = QuantumCircuit(2)
 circ.x(1)
+circ.z(1)
+circ.x(1)
 gamma5 = circ.to_gate(label = r'$\gamma^5$')
 
+
+# # Multi-gamma gate
+
+# circ = QuantumCircuit(4)
+
+# circ.x(1)
+# circ.append(Z.control(2, ctrl_state = '00'), [2,3,1])
+# circ.z(1)
+# circ.append(X.control(2, ctrl_state = '01'), [2,3,0])
+# circ.append(Y.control(2, ctrl_state = '10'), [2,3,0])
+# circ.append(Z.control(2, ctrl_state = '11'), [2,3,0])
+
+# multi_gamma = circ.to_gate(label = r'$\Gamma$') 
 
 
 #%%
@@ -345,6 +400,8 @@ def V_gate(n_particles, Cs, n):
 
   for mu in range(4):
     circ.append(gammas[mu].control(2, ctrl_state = binary(mu, 2)), register([t, i]))
+
+  # circ.append(multi_gamma, register([t, i]))
 
   circ.h(a)
 

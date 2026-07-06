@@ -56,6 +56,7 @@ def get_Z_diagram(s, theta = np.pi/3, M_Z = M_Z):
 
   return result
 
+
 def get_interference(M1, M2):
     prod = M1*(M2.conj())
     return 2*prod.real
@@ -86,9 +87,11 @@ def true_cross_section(s):
     
     chi_Z = s/(s - M_Z**2) / (4* np.sin(theta_W)**2 * np.cos(theta_W)**2)
     
-    sigma = 1/(3*s) * (Q_q**2 + 2 * Q_q * v_q * v_mu * chi_Z.real + (v_q**2 + a_q**2)**2 * (v_mu**2 + a_mu**2)**2 * abs(chi_Z)**2)
+    sigma = 1/(3*s) * (Q_q**2 * Q_mu**2 + 2 * Q_q * Q_mu * v_q * v_mu * chi_Z.real + (v_q**2 + a_q**2)**2 * (v_mu**2 + a_mu**2)**2 * abs(chi_Z)**2)
     
     return sigma.real
+
+
 
     
 

@@ -9,7 +9,7 @@ Created on Fri Dec 12 13:07:07 2025
 
 import numpy as np
 from qiskit import *
-from qiskit.quantum_info import Statevector, Operator
+from qiskit.quantum_info import Statevector, Operator, partial_trace
 from qiskit.circuit.library import QFTGate, UnitaryGate
 import functools as ft
 import matplotlib. pyplot as plt
@@ -105,7 +105,7 @@ def get_spinor(E, s, type, direction, theta = np.pi/3):
     s : Mandelstam variable - float
     type : Type of particle: Fermion/anti-fermion - F/A
     direction : Incoming or outgoing spinor - in/out
-    theta : Scattering angle - float [0, 2pi), default is pi/3
+    theta : Scattering angle - float [0, pi), default is pi/3
 
     Returns
     -------
@@ -140,6 +140,7 @@ def get_spinor(E, s, type, direction, theta = np.pi/3):
 
 
 
+
 def SDandAveComp(data):
   # Returns the standard deviation of an array of data points
   N = len(data)
@@ -165,7 +166,7 @@ def outlier_mask(data):
                 
                 data[r, e] = 0
             
-            if element == 100:
+            if element >= 100:
                 data[r, e] = 0
                 
     mask = data == 0
@@ -173,21 +174,31 @@ def outlier_mask(data):
     return np.ma.masked_array(data, mask)
 
                 
-def integrate(result):
+def integrate(result, term = 'Full'):
     output = np.zeros(result['Data']['PS points']) 
     
     # Getting the error matrix
-    error_matrix = result['Error matrix'] 
+    if term == 'Full':
+        error_matrix = result['Error matrix'] 
+    elif term == 'Int': 
+        error_matrix = result['Error matrix interference'] 
+    else:
+        print('Not valid term argument')
+        
     mask = np.ma.getmask(error_matrix)  # Masked array has true if masked, we want opposite
     
     # Removing the outlier points before computing
-    result_ave = np.ma.masked_array(result['Average'], mask = mask).filled(0)
+    if term == 'Full':
+        result_ave = np.ma.masked_array(result['Average'], mask = mask).filled(0)
+    else:
+        result_ave = np.ma.masked_array(result['Average interference'], mask = mask).filled(0)
     
     # Theta range
     n_angle_points = result['Data']['Angle points']    
     t_range = np.linspace(0, np.pi, n_angle_points + 1)[:-1]
     dtheta = np.pi/n_angle_points
     
+    # Integrate
     for r, row in enumerate(result_ave):
         output[r] = 2 * np.pi * dtheta * sum([np.sin(t_range[k]) * row[k] for k in range(n_angle_points)])
         

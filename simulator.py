@@ -39,15 +39,15 @@ def simulate(n_particles = 2, s = 1000,
         s_range_rough = np.array([s])
         
     
+    t_range_fine = np.linspace(0, np.pi, 1000)
+    
     if angle_integration == True:
         print(f'- Scattering angle integration activated with {n_angle_points} dicrete points')
         
         t_range_rough = np.linspace(0, np.pi, n_angle_points + 1)[:-1]
-        t_range_fine = np.linspace(0, np.pi, 1000)
         
         t_qubits = get_needed_qubits(n_angle_points)
-        
-        
+    
     else:
         print(f'- Scattering angle: {theta}')
         t_qubits = 0
@@ -79,7 +79,7 @@ def simulate(n_particles = 2, s = 1000,
     
     # Output matrix
     # [full term/interference, batches, s, theta]
-    circ_outs = np.zeros((2, n_batches, n_PS, n_angle_points)) 
+    circ_outs = np.zeros((2, n_batches, n_PS, n_angle_points))
     
     # Run circuit
     print('\nRunning circuit')
@@ -173,16 +173,93 @@ def simulate(n_particles = 2, s = 1000,
 
 
 # ----- Run simulation ----- #
-n_PS = 4
-n_angle_points = 16
-s_min = 85
+n_PS = 8
+n_angle_points = 8
+s_min = 80
 s_max = 100
-n_batches = 100
+n_batches = 25
 shots = 2e7
 
 result = simulate(PS_integration = True, n_PS = n_PS, s_min = s_min, s_max = s_max,
-         angle_integration = True, n_angle_points = n_angle_points,
-         n_batches = n_batches, shots = shots)
+                  angle_integration = True, n_angle_points = n_angle_points,
+                  n_batches = n_batches, shots = shots)
+
+
+
+#%%
+
+# Single BW plot 
+
+output = sum(result['Full output'][0, :])/n_batches
+output_int = sum(result['Full output'][1, :])/n_batches
+
+SDs = np.zeros(8)
+SDs_int = np.zeros(8)
+for i in range(8):
+    SDs[i] = SDandAveComp(result['Full output'][0, :, i])[0]
+    SDs_int[i] = SDandAveComp(result['Full output'][1, :, i])[0]
+
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize= (8, 5), sharex = True)
+
+ax1.errorbar(np.linspace(80, 100, 8), output.T[0], yerr = SDs, 
+             fmt = 'o', color = 'purple', label = 'Circuit output', ecolor = 'lightgray', capsize = 5)
+ax1.plot(np.linspace(80, 100, 1000), 
+         [abs(get_Z_diagram(s_sqrt**2, theta = np.pi/3) + get_photon_diagram(s_sqrt**2, theta = np.pi/3))**2 for s_sqrt in np.linspace(80, 100, 1000)], 
+         color = 'black', linestyle = '--', alpha = 0.5, label = 'True value')
+
+ax2.errorbar(np.linspace(80, 100, 8), output_int.T[0], yerr = SDs_int, 
+             fmt = 'o', color = 'purple', ecolor = 'lightgray', capsize = 5)
+ax2.plot(np.linspace(80, 100, 1000), 
+         [get_interference(get_Z_diagram(s_sqrt**2, theta = np.pi/3), get_photon_diagram(s_sqrt**2, theta = np.pi/3)) for s_sqrt in np.linspace(80, 100, 1000)], 
+         color = 'black', linestyle = '--', alpha = 0.5)
+
+ax1.set_yscale('log')
+# ax2.set_yscale('log')
+ax1.legend()
+
+ax1.set_ylabel(r'$|\mathcal{M}_\gamma + \mathcal{M}_Z|^2$')
+ax2.set_xlabel(r'$\sqrt{s}$')
+ax2.set_ylabel(r'$\text{Int}(\mathcal{M}_\gamma, \mathcal{M}_Z)$')
+fig.tight_layout()
+
+#%%
+
+
+# Single angular distribution plot
+
+output = sum(result['Full output'][0, :, 0])/n_batches
+output_int = sum(result['Full output'][1, :, 0])/n_batches
+
+SDs = np.zeros(8)
+SDs_int = np.zeros(8)
+for i in range(8):
+    SDs[i] = SDandAveComp(result['Full output'][0, :, 0, i])[0]
+    SDs_int[i] = SDandAveComp(result['Full output'][1, :, 0, i])[0]
+
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize= (8, 5), sharex = True)
+
+theta_range = np.linspace(0, np.pi, 9)[:-1]
+theta_range_fine = np.linspace(0, np.pi, 1000)
+ax1.errorbar(theta_range, output, yerr = SDs, 
+             fmt = 'o', color = 'purple', label = 'Circuit output', ecolor = 'lightgray', capsize = 5)
+ax1.plot(theta_range_fine, 
+          [abs(get_Z_diagram(s = 80**2, theta = t) + get_photon_diagram(s = 80**2, theta = t))**2 for t in theta_range_fine], 
+          color = 'black', linestyle = '--', alpha = 0.5, label = 'True value')
+
+ax2.errorbar(theta_range, output_int, yerr = SDs_int, 
+              fmt = 'o', color = 'purple', ecolor = 'lightgray', capsize = 5)
+ax2.plot(theta_range_fine, 
+          [get_interference(get_Z_diagram(s = 80**2, theta = t), get_photon_diagram(s = 80**2, theta = t)) for t in theta_range_fine], 
+          color = 'black', linestyle = '--', alpha = 0.5)
+
+ax1.set_yscale('log')
+# ax2.set_yscale('log')
+ax1.legend()
+
+ax1.set_ylabel(r'$|\mathcal{M}_\gamma + \mathcal{M}_Z|^2$')
+ax2.set_xlabel(r'$\theta$')
+ax2.set_ylabel(r'$\text{Int}(\mathcal{M}_\gamma, \mathcal{M}_Z)$')
+fig.tight_layout()
 
 
 
