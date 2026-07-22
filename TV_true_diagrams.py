@@ -8,8 +8,8 @@ Created on Mon Dec 15 14:27:31 2025
 """
 
 from constant_inputs import *
-from main import *
-from quantum_gates import gamma_matrices, gamma5_matrix, beta_matrix
+from TV_main import *
+from TV_quantum_gates import *
 from Drell_Yan_circuit import *
 from itertools import product
 
@@ -22,13 +22,18 @@ def sign(mu):
 
 def get_photon_diagram(s, theta = np.pi/3, hel=['+','-','-','+']):
 
-  prefactor = e**2*Q_mu*Q_mu/s
+  prefactor = e**2*Q_q*Q_mu/s
 
+  print('holnap')
   inputs = generate_kinematic_inputs(s, theta = theta, hel=hel)
   prod = lambda gamma, mu: sign(mu) \
                           * (inputs['spinor2'].T @ beta_matrix @ gamma @ inputs['spinor1']) \
                           * (inputs['spinor3'].T @ beta_matrix  @ gamma @ inputs['spinor4'])
 
+  print('GET PHOTON',inputs['spinor1'].T)
+  print('GET PHOTON',inputs['spinor2'].T)
+  print('GET PHOTON',inputs['spinor3'].T)
+  print('GET PHOTON',inputs['spinor4'].T)
   # Sum over all spinor products and mutliply with front-factor
   result = prefactor * ft.reduce(lambda x, y: x+y, map(prod, gamma_matrices, range(4)))
 
@@ -43,19 +48,19 @@ def get_Z_diagram(s, theta = np.pi/3, M_Z = M_Z, hel=['+','-','-','+']):
   spinor4 = get_spinor(E, s = hel[3], type = 'A', direction = 'out', theta = theta) # muon+
 
   #print('spinors')
-  #print(spinor1)
-  #print(spinor2)
-  #print(spinor3)
-  #print(spinor4)
-  prefactor = -1/(s - M_Z**2 + 1j*M_Z*Gamma_Z)
+  print(spinor1)
+  print(spinor2)
+  print(spinor3)
+  print(spinor4)
+  prefactor = -1/(s - M_Z**2 + 1j*M_Z*Gamma_Z)*(e/(2*np.cos(theta_W)*np.sin(theta_W)))**2
 
   # First prod with quark factors
-  prod_el = lambda gamma: spinor2.T @ beta_matrix @ gamma @ (C_L_Z(Q_e, I_e)   * P_L + C_R_Z(Q_e, I_e) * P_R) @ spinor1
+  prod_q = lambda gamma: spinor2.T @ beta_matrix @ gamma @ (C_L_Z(Q_q, I_q)   * P_L + C_R_Z(Q_q, I_q) * P_R) @ spinor1
 
   # Second prod with muon factors
   prod_mu = lambda gamma: spinor3.T @ beta_matrix @ gamma @ (C_L_Z(Q_mu, I_mu) * P_L + C_R_Z(Q_mu, I_mu) * P_R) @ spinor4
 
-  full_prod = lambda gamma, mu: sign(mu) * prod_el(gamma) * prod_mu(gamma)
+  full_prod = lambda gamma, mu: sign(mu) * prod_q(gamma) * prod_mu(gamma)
 
   result = prefactor * ft.reduce(lambda x, y: x + y, map(full_prod, gamma_matrices, range(4)))
 
@@ -112,20 +117,21 @@ with open("xyz_output.dat", "w") as f:
 #    checks with MadGraph output
 ##################################################
 
-energy=100.0
-theta = 2.0
+energy=300.0
+theta = 4.0
 s = 4*energy**2
+hel=['+','-','+','-']
 
-print('Photon diagram with energy E=',energy,' GeV, theta=',theta,': ')
-photon=get_photon_diagram(s,theta)
+print('\n ------> Photon diagram with energy E=',energy,' GeV, theta=',theta,': ')
+photon=get_photon_diagram(s,theta,hel)
 print(photon*np.conj(photon))
-print('Z-boson diagram with energy E=',energy,' GeV, theta=',theta,': ')
-z_diag=get_Z_diagram(s,theta)
+print('\n ------> Z-boson diagram with energy E=',energy,' GeV, theta=',theta,': ')
+z_diag=get_Z_diagram(s,theta,M_Z,hel)
 print(z_diag*np.conj(z_diag))
 
-print('Both diagrams with energy E=',energy,' GeV, theta=',theta,': ')
-tot = true(s,theta)
-print(tot)
+#print('\n ------> Both diagrams with energy E=',energy,' GeV, theta=',theta,': ')
+#tot = true(s,theta)
+#print(tot)
 
 # Define the symbols
 symbols = ['+', '-']
@@ -139,13 +145,12 @@ all_combinations = [list(t) for t in all_combinations]
 # Check
 summ_Z=0.0
 summ_A=0.0
-for combo in all_combinations:
-    z_diag=get_Z_diagram(s, theta, hel=combo)
-    summ_Z = summ_Z + z_diag*np.conj(z_diag)
-    photon = get_photon_diagram(s, theta, hel=combo)
-    summ_A = summ_A + photon*np.conj(photon)
+#for combo in all_combinations:
+#    z_diag=get_Z_diagram(s, theta, hel=combo)
+#    summ_Z = summ_Z + z_diag*np.conj(z_diag)
+#    photon = get_photon_diagram(s, theta, hel=combo)
+#    summ_A = summ_A + photon*np.conj(photon)
 
-print('Summed over all helcities for Z:',summ_Z)
-print('Summed over all helcities for A:',summ_A)
-
+#print('\n ------> Summed over all helcities for Z:',summ_Z)
+#print('\n ------> Summed over all helcities for A:',summ_A)
 

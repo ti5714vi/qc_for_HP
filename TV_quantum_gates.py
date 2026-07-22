@@ -7,7 +7,7 @@ Created on Sat Dec 13 10:50:56 2025
 @author: Erik Bashore
 """
 
-from main import *
+from TV_main import *
 from constant_inputs import *
 
 
@@ -102,8 +102,8 @@ eta_gate = eta_gate()
 
 gamma0_matrix = np.array([[0,0,1,0],
                           [0,0,0,1],
-                          [-1,0,0,0],
-                          [0,-1,0,0]])
+                          [1,0,0,0],
+                          [0,1,0,0]])
 
 gamma1_matrix = np.array([[0,0,0,1],
                           [0,0,1,0],
@@ -124,6 +124,8 @@ gamma5_matrix = np.array([[-1,0,0,0],
                           [0,-1,0,0],
                           [0,0,1,0],
                           [0,0,0,1]])
+
+test = 1j*gamma0_matrix @ gamma1_matrix @ gamma2_matrix @ gamma3_matrix 
 
 beta_matrix = gamma0_matrix
 
