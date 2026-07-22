@@ -24,16 +24,11 @@ def get_photon_diagram(s, theta = np.pi/3, hel=['+','-','-','+']):
 
   prefactor = e**2*Q_q*Q_mu/s
 
-  print('holnap')
   inputs = generate_kinematic_inputs(s, theta = theta, hel=hel)
   prod = lambda gamma, mu: sign(mu) \
                           * (inputs['spinor2'].T @ beta_matrix @ gamma @ inputs['spinor1']) \
                           * (inputs['spinor3'].T @ beta_matrix  @ gamma @ inputs['spinor4'])
 
-  print('GET PHOTON',inputs['spinor1'].T)
-  print('GET PHOTON',inputs['spinor2'].T)
-  print('GET PHOTON',inputs['spinor3'].T)
-  print('GET PHOTON',inputs['spinor4'].T)
   # Sum over all spinor products and mutliply with front-factor
   result = prefactor * ft.reduce(lambda x, y: x+y, map(prod, gamma_matrices, range(4)))
 
@@ -47,11 +42,6 @@ def get_Z_diagram(s, theta = np.pi/3, M_Z = M_Z, hel=['+','-','-','+']):
   spinor3 = get_spinor(E, s = hel[2], type = 'F', direction = 'out', theta = theta) # muon-
   spinor4 = get_spinor(E, s = hel[3], type = 'A', direction = 'out', theta = theta) # muon+
 
-  #print('spinors')
-  print(spinor1)
-  print(spinor2)
-  print(spinor3)
-  print(spinor4)
   prefactor = -1/(s - M_Z**2 + 1j*M_Z*Gamma_Z)*(e/(2*np.cos(theta_W)*np.sin(theta_W)))**2
 
   # First prod with quark factors
