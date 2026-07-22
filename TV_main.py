@@ -116,29 +116,33 @@ def get_spinor(E, s, type, direction, theta = np.pi/3):
     st = np.sin(theta/2)
    
     if direction == 'in':
-      ct = 1
-      st = 0
       if type == 'F':
+        ct = 1
+        st = 0
         if s == '+':
-          return np.sqrt(2*E) * np.array([-ct, -st, 0, 0])
+          return np.sqrt(2*E) * np.array([0, 0, ct, st]) 
         else:
-          return np.sqrt(2*E) * np.array([0, 0, st, -ct])
+          return np.sqrt(2*E) * np.array([-st, ct, 0, 0])
       else:
+        ct = 0
+        st = 1
         if s == '+':
-          return np.sqrt(2*E) * np.array([0, 0, st, -ct])
+          return np.sqrt(2*E) * np.array([-st, ct, 0, 0])
         else:
-          return np.sqrt(2*E) * np.array([ct, st, 0, 0])
+          return np.sqrt(2*E) * np.array([0, 0, ct, st])  
     else:
       if type == 'F':
         if s == '+':
-          return np.sqrt(2*E) * np.array([0, 0, st, -ct])
+          return np.sqrt(2*E) * np.array([0, 0, ct, st])
         else:
-          return np.sqrt(2*E) * np.array([ct, st, 0, 0])
+          return np.sqrt(2*E) * np.array([-st, ct, 0, 0])
       else:
+        ct = -ct
+        st = st
         if s == '+':
-          return np.sqrt(2*E) * np.array([-ct, -st, 0, 0])
+          return np.sqrt(2*E) * np.array([-st, ct, 0, 0])
         else:
-          return np.sqrt(2*E) * np.array([0, 0, st, -ct])
+          return np.sqrt(2*E) * np.array([0, 0, -st, ct])
 
 
 
